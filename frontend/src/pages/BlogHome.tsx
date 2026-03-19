@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { guidesApi, GuideListItem } from '../api/client';
+import { guidesApi } from '../api/client';
+import type { GuideListItem } from '../api/client';
 import { paths } from '../routes/paths';
 
 export function BlogHome() {

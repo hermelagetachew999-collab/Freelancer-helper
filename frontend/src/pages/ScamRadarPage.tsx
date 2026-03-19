@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { scamApi, ScamResult } from '../api/client';
+import { scamApi } from '../api/client';
+import type { ScamResult } from '../api/client';
 
 function riskBadge(level: ScamResult['riskLevel']) {
   if (level === 'high') return <span className="badge badge-red">High risk</span>;

@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { GuideDetail, guidesApi } from '../api/client';
+import { guidesApi } from '../api/client';
+import type { GuideDetail } from '../api/client';
 import { FeeCalculator } from '../components/FeeCalculator';
 import { useSessionId } from '../hooks/useSession';
 

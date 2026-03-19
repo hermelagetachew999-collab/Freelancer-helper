@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Account, authApi } from '../api/client';
+import { authApi } from '../api/client';
+import type { Account } from '../api/client';
 import { useSessionId } from './useSession';
 
 export function useAuth() {
