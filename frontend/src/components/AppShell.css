@@ -1,0 +1,93 @@
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 150;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+}
+
+.app-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 220px;
+}
+
+.app-logo {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 900;
+  font-size: 1.05rem;
+}
+
+.app-tagline {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.app-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 6px 10px;
+}
+
+.app-nav-link {
+  color: var(--text-secondary);
+  padding: 8px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  transition: background var(--transition), color var(--transition);
+}
+
+.app-nav-link.active {
+  color: var(--text-primary);
+  background: rgba(108, 99, 255, 0.16);
+}
+
+.app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 160px;
+  justify-content: flex-end;
+}
+
+.app-main {
+  padding: 28px 0 56px;
+}
+
+@media (max-width: 900px) {
+  .app-tagline {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header-inner {
+    flex-wrap: wrap;
+  }
+  .app-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .app-brand,
+  .app-header-actions {
+    min-width: auto;
+  }
+}
+

@@ -1,0 +1,129 @@
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 13, 20, 0.96);
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.onboarding-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  max-width: 540px;
+  width: 100%;
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.onboarding-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.onboarding-logo {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.onboarding-progress-bar {
+  height: 4px;
+  background: var(--bg-elevated);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.onboarding-progress-fill {
+  height: 100%;
+  background: var(--accent-gradient);
+  border-radius: 99px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.onboarding-step-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.onboarding-welcome {
+  background: rgba(108, 99, 255, 0.08);
+  border: 1px solid rgba(108, 99, 255, 0.2);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  line-height: 1.6;
+}
+
+.onboarding-welcome strong {
+  color: var(--text-primary);
+}
+
+.onboarding-question {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.onboarding-emoji {
+  font-size: 2rem;
+}
+
+.onboarding-question h2 {
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+
+.onboarding-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.onboarding-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.onboarding-option {
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition);
+}
+
+.onboarding-option:hover {
+  border-color: var(--accent-1);
+  color: var(--text-primary);
+  background: rgba(108, 99, 255, 0.08);
+}
+
+.onboarding-option.selected {
+  border-color: var(--accent-1);
+  background: rgba(108, 99, 255, 0.12);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .onboarding-card { padding: 24px; }
+  .onboarding-options { grid-template-columns: 1fr; }
+}

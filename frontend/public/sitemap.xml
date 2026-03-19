@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>http://localhost:5173/</loc></url>
+  <url><loc>http://localhost:5173/platforms</loc></url>
+  <url><loc>http://localhost:5173/payment-navigator</loc></url>
+  <url><loc>http://localhost:5173/scam-radar</loc></url>
+  <url><loc>http://localhost:5173/platform-picker</loc></url>
+  <url><loc>http://localhost:5173/blog</loc></url>
+</urlset>
+
