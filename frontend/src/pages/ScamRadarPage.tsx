@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { scamApi } from '../api/client';
 import type { ScamResult } from '../api/client';
 

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 type Skill = 'design' | 'writing' | 'dev' | 'video' | 'data' | 'other';
 type WorkStyle = 'longTerm' | 'quickGigs';

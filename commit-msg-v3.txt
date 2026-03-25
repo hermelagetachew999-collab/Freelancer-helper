@@ -1,1 +1,0 @@
-fix: completely disable rate-limit validation for Vercel
