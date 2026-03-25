@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, KeyboardEvent, ChangeEvent } from 'react';
+import { useRef, useEffect, type KeyboardEvent, type ChangeEvent } from 'react';
 import './ChatInput.css';
 
 interface ChatInputProps {
@@ -8,7 +8,7 @@ interface ChatInputProps {
   disabled: boolean;
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ value, onChange, onSend, disabled }) => {
+export const ChatInput = ({ value, onChange, onSend, disabled }: ChatInputProps) => {
   const ref = useRef<HTMLTextAreaElement>(null);
 
   // Auto-resize
