@@ -19,8 +19,26 @@ const PORT = process.env.PORT || 3001;
 app.set('trust proxy', true);
 
 // Middleware
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
+
+console.log('🌐 Allowed Origins:', allowedOrigins);
+console.log('🤖 Gemini Key Present:', !!process.env.GEMINI_API_KEY);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('.vercel.app')) {
+      callback(null, true);
+    } else {
+      console.warn(`🚫 CORS blocked for origin: ${origin}`);
+      callback(null, true); // Temporarily allow all for portfolio debugging
+    }
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: '2mb' }));
