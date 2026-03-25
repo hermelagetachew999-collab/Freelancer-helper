@@ -5,8 +5,12 @@
 .app-header {
   position: sticky;
   top: 0;
-  z-index: 150;
+  z-index: 1000; /* High z-index to stay above everything */
+  background: var(--bg-primary); /* Solid background by default */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
 }
 
 .app-header-inner {
@@ -14,93 +18,127 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 0;
+  padding: 12px 0;
+  height: 64px; /* Fixed height for stability */
+}
+
+/* Burger Button */
+.burger-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 24px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+  order: 3; /* Always on the right */
+}
+
+.burger-bar {
+  width: 24px;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 10px;
+  transition: all 0.3s linear;
+  position: relative;
+  transform-origin: 1px;
+}
+
+.burger-btn.open .burger-bar:first-child {
+  transform: rotate(45deg);
+}
+.burger-btn.open .burger-bar:nth-child(2) {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.burger-btn.open .burger-bar:last-child {
+  transform: rotate(-45deg);
+}
+
+/* Navigation Menu Container (Dropdown) */
+.nav-menu-container {
+  display: none; /* Hidden by default */
+  position: absolute;
+  top: 100%; /* Directly below header */
+  right: 0;
+  width: 100%;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border);
+  padding: 24px var(--container-padding);
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  animation: slideDown 0.3s ease-out;
+}
+
+.nav-menu-container.active {
+  display: flex;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.app-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .app-brand {
   display: flex;
   align-items: center;
-  gap: 16px; /* Increased gap */
-  min-width: 220px;
+  gap: 12px;
+  flex: 1;
 }
 
 .app-logo {
   font-family: 'Outfit', sans-serif;
-  font-weight: 900;
-  font-size: 1.05rem;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
 }
 
 .app-tagline {
   color: var(--text-secondary);
-  font-size: 0.85rem;
-  white-space: nowrap;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  display: inline-block;
 }
-
-.app-nav {
-  display: flex;
-  align-items: center;
-  gap: 4px; /* Reduced gap for mobile */
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  padding: 4px 6px;
-  overflow-x: auto; /* Allow horizontal scroll if needed */
-  scrollbar-width: none;
-}
-.app-nav::-webkit-scrollbar { display: none; }
 
 .app-nav-link {
   color: var(--text-secondary);
-  padding: 8px 12px;
-  border-radius: var(--radius-full);
-  font-size: 0.85rem; /* Slightly smaller font */
-  transition: background var(--transition), color var(--transition);
-  white-space: nowrap; /* Prevent wrapping */
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: all var(--transition);
+  display: block;
+  font-weight: 500;
 }
 
-.app-nav-link.active {
+.app-nav-link:hover, .app-nav-link.active {
   color: var(--text-primary);
-  background: rgba(108, 99, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .app-header-actions {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 160px;
-  justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }
 
 .app-main {
-  padding: 16px 0 24px; /* Reduced from 28/56 */
+  padding: 0; /* Remove default padding since header is sticky */
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
-@media (max-width: 900px) {
-  .app-tagline {
-    display: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .app-header-inner {
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 0;
-  }
-  .app-nav {
-    width: 100%;
-    justify-content: center;
-  }
-  .app-brand,
-  .app-header-actions {
-    min-width: auto;
-    width: 100%;
-    justify-content: center;
-  }
+@media (max-width: 600px) {
   .app-tagline {
     display: none;
   }
