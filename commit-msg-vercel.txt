@@ -1,1 +1,0 @@
-chore: prepare for Vercel deployment with vercel.json and app export
