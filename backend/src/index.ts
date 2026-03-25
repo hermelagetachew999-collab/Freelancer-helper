@@ -32,8 +32,8 @@ app.use(
     limit: 120,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
-    // Disable strict header validation that causes crashes on some proxies
-    validate: { xForwardedForHeader: false },
+    // Disable all strict validation to prevent crashes on Vercel's infrastructure
+    validate: false,
   })
 );
 

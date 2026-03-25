@@ -1,5 +1,0 @@
-fix: disable rate-limit header validation for Vercel
-
-- Updated app.set('trust proxy', true)
-- Added validate: { xForwardedForHeader: false } to rateLimit config
-- This resolves the ERR_ERL_UNEXPECTED_X_FORWARDED_FOR error on Vercel
