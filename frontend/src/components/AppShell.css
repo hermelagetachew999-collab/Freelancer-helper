@@ -5,12 +5,10 @@
 .app-header {
   position: sticky;
   top: 0;
-  z-index: 1000; /* High z-index to stay above everything */
-  background: var(--bg-primary); /* Solid background by default */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  z-index: 1000;
+  background: var(--bg-base); /* Pure solid background */
   border-bottom: 1px solid var(--border);
-  transition: background var(--transition);
+  transition: all var(--transition);
 }
 
 .app-header-inner {
@@ -18,8 +16,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 12px 0;
-  height: 64px; /* Fixed height for stability */
+  padding: 0;
+  height: 72px; 
 }
 
 /* Burger Button */
@@ -27,18 +25,18 @@
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  width: 24px;
-  height: 20px;
+  width: 28px;
+  height: 22px;
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 0;
-  z-index: 1001;
-  order: 3; /* Always on the right */
+  z-index: 1100;
+  margin-left: auto;
 }
 
 .burger-bar {
-  width: 24px;
+  width: 28px;
   height: 2px;
   background: var(--text-primary);
   border-radius: 10px;
@@ -60,17 +58,19 @@
 
 /* Navigation Menu Container (Dropdown) */
 .nav-menu-container {
-  display: none; /* Hidden by default */
-  position: absolute;
-  top: 100%; /* Directly below header */
-  right: 0;
+  display: none;
+  position: fixed;
+  top: 72px;
+  left: 0;
   width: 100%;
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border);
-  padding: 24px var(--container-padding);
+  height: calc(100vh - 72px);
+  background: var(--bg-base); /* Pure solid background */
+  padding: 32px 24px;
   flex-direction: column;
-  gap: 20px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  gap: 24px;
+  z-index: 1050;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   animation: slideDown 0.3s ease-out;
 }
 

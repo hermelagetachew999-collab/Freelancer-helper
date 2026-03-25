@@ -12,7 +12,7 @@ export function AppShell() {
 
   return (
     <div className="app-shell">
-      <header className="app-header glass">
+      <header className="app-header">
         <div className="container app-header-inner">
           <div className="app-brand">
             <NavLink to={paths.home} className="app-logo gradient-text" onClick={close}>

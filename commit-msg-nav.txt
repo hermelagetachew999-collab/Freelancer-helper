@@ -1,1 +1,0 @@
-feat: implement sticky header and universal burger menu
