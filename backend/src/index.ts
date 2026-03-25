@@ -16,7 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Trust Vercel's proxy for correct rate limiting IP detection
-app.set('trust proxy', 1);
+app.set('trust proxy', true);
 
 // Middleware
 app.use(cors({
@@ -32,6 +32,8 @@ app.use(
     limit: 120,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
+    // Disable strict header validation that causes crashes on some proxies
+    validate: { xForwardedForHeader: false },
   })
 );
 
