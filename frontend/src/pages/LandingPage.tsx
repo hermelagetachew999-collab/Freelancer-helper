@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { paths } from '../routes/paths';
 
@@ -8,11 +7,11 @@ export function LandingPage() {
       <section className="card card-glow" style={{ padding: 28 }}>
         <span className="badge badge-purple">Phase 1 MVP</span>
         <h1 className="display-lg" style={{ marginTop: 10 }}>
-          Freelance help that actually works in <span className="gradient-text">Ethiopia</span>.
+          Navigating <span className="gradient-text">Global Payment Corridors</span> for Ethiopian Freelancers.
         </h1>
         <p style={{ marginTop: 10, color: 'var(--text-secondary)', maxWidth: 820 }}>
-          Proposal coaching, scam detection, platform guides, and the most important piece nobody explains:
-          getting paid in Ethiopia (Payoneer setup, PayPal alternatives, ETB conversion traps).
+          A technical resource for proposal optimization, risk analysis, and international payment integration 
+          strategies for the emerging digital economy in Ethiopia.
         </p>
 
         <div style={{ display: 'flex', gap: 12, marginTop: 18, flexWrap: 'wrap' }}>
@@ -34,7 +33,7 @@ export function LandingPage() {
         <div className="card" style={{ padding: 18, flex: '1 1 280px' }}>
           <h2 className="display-md">Payment Navigator</h2>
           <p style={{ color: 'var(--text-secondary)', marginTop: 8 }}>
-            Step-by-step Payoneer setup, safe alternatives to PayPal, and a birr conversion calculator.
+            Guidance on cross-border financial rails, regulatory-compliant wallet setup, and forex market analysis.
           </p>
         </div>
         <div className="card" style={{ padding: 18, flex: '1 1 280px' }}>

@@ -1,73 +1,24 @@
-# React + TypeScript + Vite
+# Freelancer Helper: A Case Study in Financial Inclusion & Proposal Excellence
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Freelancer Helper** is a technical resource and platform prototype designed to assist Ethiopian freelancers in navigating the complexities of the global gig economy. 
 
-Currently, two official plugins are available:
+## Project Objectives
+- **Fintech Research**: Analyzing cross-border payment rails and settlement strategies for regions with restricted financial access.
+- **Proposal Optimization**: Utilizing Generative AI to assist freelancers in crafting high-conversion proposals tailored to global platforms (Upwork, Fiverr).
+- **Risk Mitigation**: Implementing AI-driven scam detection to protect early-stage freelancers from regional and global fraudulent patterns.
+- **Economic Analysis**: Providing tools for market-spread calculation and net-earnings analysis in a volatile forex environment.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Key Features
+- **ProposalWin AI Coach**: A Gemini-powered assistant for technical review and optimization of client proposals.
+- **Payment Navigator**: A research guide for regulatory-compliant international payment settlement (Payoneer, Wise, etc.).
+- **Scam Radar**: A risk analysis tool that identifies common fraudulent patterns targeting emerging markets.
+- **Market Spread Calculator**: A fiscal utility for estimating net ETB earnings after platform fees and market adjustments.
 
-## React Compiler
+## Technical Stack
+- **Frontend**: React, TypeScript, Vite, Vanilla CSS.
+- **Backend**: Node.js, Express, PostgreSQL.
+- **AI Integration**: Google Gemini AI (Vertex AI / Generative AI SDK).
+- **Architecture**: Modular service-oriented architecture with a focus on security and scalability.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Disclaimer
+This project is for **Research and Educational Purposes only**. It is intended to explore technological solutions for financial inclusion and does not constitute financial or legal advice. Always comply with local and international regulations.

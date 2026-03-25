@@ -6,6 +6,8 @@ dotenv.config();
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  connectionTimeoutMillis: 5000, // 5 seconds timeout
+  query_timeout: 5000, // 5 seconds query timeout
 });
 
 export async function runMigrations(): Promise<void> {

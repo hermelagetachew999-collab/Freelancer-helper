@@ -52,14 +52,22 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 
 // Start server
 async function start() {
+  // Start listening IMMEDIATELY to prevent ERR_CONNECTION_REFUSED
+  app.listen(PORT, () => {
+    console.log(`🚀 FreelanceClarity backend running on http://localhost:${PORT}`);
+  });
+
   try {
-    await runMigrations();
-    app.listen(PORT, () => {
-      console.log(`🚀 FreelanceClarity backend running on http://localhost:${PORT}`);
+    console.log('⏳ Attempting database migrations...');
+    // We run this in the background so it doesn't block the server port
+    runMigrations().then(() => {
+      console.log('✅ Database migrations successful');
+    }).catch((error) => {
+      console.error('⚠️ Database migration failed (app will run in stateless mode):', error instanceof Error ? error.message : error);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
+    // This top-level catch is for synchronous errors if any
+    console.error('Startup error:', error);
   }
 }
 

@@ -4,10 +4,11 @@
   background: rgba(10, 13, 20, 0.96);
   backdrop-filter: blur(20px);
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to allow scrolling from top */
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: 40px 20px; /* More vertical padding */
+  overflow-y: auto; /* Allow overlay to scroll */
 }
 
 .onboarding-card {
@@ -21,6 +22,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  margin-bottom: 40px; /* Spacing at bottom when scrolling */
 }
 
 .onboarding-header {

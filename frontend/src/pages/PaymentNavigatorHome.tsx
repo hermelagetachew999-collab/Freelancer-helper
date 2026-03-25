@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { guidesApi } from '../api/client';
 import type { GuideListItem } from '../api/client';
@@ -25,16 +25,21 @@ export function PaymentNavigatorHome() {
       <section className="card card-glow" style={{ padding: 22 }}>
         <h1 className="display-md">Payment Navigator</h1>
         <p style={{ marginTop: 8, color: 'var(--text-secondary)' }}>
-          The Ethiopia-specific part nobody explains: getting paid safely, setting up Payoneer, and avoiding ETB conversion traps.
+          A guide to cross-border financial rails for Ethiopian freelancers: setting up regulatory-compliant 
+          wallets and navigating international payment settlement.
         </p>
 
-        {error ? <div style={{ marginTop: 12, color: 'var(--red)' }}>{error}</div> : null}
+        {error ? (
+          <div className="card" style={{ marginTop: 16, padding: 12, borderLeft: '3px solid var(--red)', background: 'rgba(255, 71, 87, 0.05)' }}>
+            <span style={{ color: 'var(--red)', fontSize: '0.9rem' }}>{error}</span>
+          </div>
+        ) : null}
 
         <div className="divider" />
 
         <div className="flex gap-4" style={{ flexWrap: 'wrap' }}>
-          <Link className="btn btn-ghost" to={`${paths.paymentNavigator}/birr-calculator`}>
-            Open birr calculator
+          <Link className="btn btn-primary" to={`${paths.paymentNavigator}/birr-calculator`}>
+            Open Net Earnings Calculator
           </Link>
         </div>
 

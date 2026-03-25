@@ -1,14 +1,11 @@
 .sidebar {
-  position: fixed;
-  left: 0; top: 0; bottom: 0;
   width: 280px;
   background: var(--bg-surface);
-  border-right: 1px solid var(--border);
+  border-left: 1px solid var(--border); /* Changed from right to left */
   display: flex;
   flex-direction: column;
   gap: 16px;
   padding: 20px 16px;
-  z-index: 200;
   transition: transform var(--transition-slow);
 }
 
@@ -72,7 +69,6 @@
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition);
-  group: true;
   position: relative;
 }
 
@@ -129,10 +125,13 @@
   border-radius: var(--radius-md);
 }
 
-/* Mobile */
+/* Mobile overlay behavior */
 @media (max-width: 768px) {
   .sidebar {
-    transform: translateX(-100%);
+    position: fixed;
+    right: 0; top: 0; bottom: 0;
+    z-index: 200;
+    transform: translateX(100%); /* Slide from right */
     box-shadow: var(--shadow-lg);
   }
   .sidebar.open {
@@ -140,4 +139,13 @@
   }
   .sidebar-backdrop { display: block; }
   .sidebar-close { display: flex; }
+}
+
+/* Desktop: hide by default or handle display */
+@media (min-width: 769px) {
+  .sidebar {
+    display: flex;
+  }
+  /* Optional: if you want the sidebar to be toggleable on desktop too, 
+     you can use a 'hidden' class, but the user seems to want it shown. */
 }

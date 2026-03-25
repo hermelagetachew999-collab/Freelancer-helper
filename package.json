@@ -1,0 +1,11 @@
+{
+  "name": "freelancer-helper-root",
+  "version": "1.0.0",
+  "description": "Unified development environment for Freelancer Helper",
+  "scripts": {
+    "dev:frontend": "npm.cmd run dev --prefix frontend",
+    "dev:backend": "npm.cmd run dev --prefix backend",
+    "dev": "npx.cmd concurrently \"npm.cmd run dev:frontend\" \"npm.cmd run dev:backend\"",
+    "install:all": "npm.cmd install --prefix frontend && npm.cmd install --prefix backend"
+  }
+}

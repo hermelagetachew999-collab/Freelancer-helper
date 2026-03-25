@@ -20,7 +20,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {isOpen && <div className="sidebar-backdrop" onClick={onClose} />}
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
-          <span className="sidebar-logo gradient-text">FreelanceClarity</span>
+          <p className="sidebar-section-label" style={{ margin: 0 }}>Navigation</p>
           <button className="btn btn-ghost btn-sm sidebar-close" onClick={onClose}>✕</button>
         </div>
 

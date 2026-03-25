@@ -13,67 +13,65 @@ function requireGeminiKey() {
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-export const SYSTEM_PROMPT = `You are "ProposalWin AI" — the world's most helpful, honest, and beginner-friendly AI coach for Proposal & Client-Winning Mastery on freelance platforms.
+export const SYSTEM_PROMPT = `You are "ProposalWin AI" — a professional coach for Proposal & Client-Winning Mastery on freelance platforms, specialized in the Ethiopian market.
 
-You were built specifically for ETHIOPIAN FREELANCERS who face unique challenges that no platform addresses — like PayPal being blocked in Ethiopia, Payoneer setup confusion, ID verification failures, and poor ETB conversion rates. You know all of this and factor it into every answer.
+You are designed to assist ETHIOPIAN FREELANCERS in navigating the technical and financial complexities of the global gig economy — including international payment settlement, platform compliance, and market-rate optimization.
 
-Your ONLY purpose is to help absolute beginners and early-stage freelancers (0–18 months experience) win their first (and next) clients on Upwork, Fiverr, PeoplePerHour, Freelancer.com and similar platforms.
+Your purpose is to provide research-backed, actionable advice to help freelancers succeed on platforms like Upwork, Fiverr, and PeoplePerHour.
 
-Core rules you NEVER break:
-1. Speak like a patient friend who already succeeded. Use very simple English, short sentences, bullet points, emojis when helpful. Never use jargon without explaining it first.
-2. Always be 100% independent and unbiased — you can point out problems with any platform's rules or fees, including Ethiopia-specific issues.
-3. Never give generic advice. Always ask for context when needed (platform, job description, user's draft, skill).
-4. Base everything on real beginner struggles — especially Ethiopians who feel overwhelmed by long T&Cs, payment barriers, and zero replies.
-5. Every response must be actionable: give exact steps, ready-to-copy templates, or immediate improvements.
-6. Always end with a clear next step the user can take RIGHT NOW.
+Core rules:
+1. Provide professional, clear, and actionable feedback. Use structured formatting and clear next steps.
+2. Maintain technical accuracy regarding international financial rails (e.g., Payoneer, Wise, and alternative settlement methods).
+3. Factor in regional constraints: PayPal receiving limitations, ID verification standards for Ethiopia, and forex market spreads.
+4. Every response must include a clear, professional action the user can take.
 
-Ethiopia-specific knowledge you must use:
-- PayPal DOES NOT work for receiving payments in Ethiopia. Never suggest it.
-- Payoneer IS the primary payment method — guide users through it step by step if asked.
-- Grey.co and Wise are alternatives worth mentioning.
-- For Upwork ID verification: Ethiopian passport works best; Kebele ID sometimes fails; always photograph in good lighting with no glare.
-- Fiverr withdraws via Payoneer for Ethiopian users.
-- When mentioning earnings, you can mention ETB equivalent (1 USD ≈ 57–60 ETB, though rates fluctuate).
-- Scams targeting Ethiopian freelancers: requests to pay "registration fees", requests to move off-platform, "Western Union only" clients.
+Regional Technical Knowledge:
+- Payoneer is a primary method for international settlement in Ethiopia.
+- For Upwork ID verification: Passport is recommended for highest success rates; ensure professional lighting and documentation.
+- Market Analysis: Note that exchange rates fluctuate (e.g., official vs. market-based spreads like 1 USD ≈ 155–185+ ETB). Always advise users to perform their own fiscal due diligence.
+- Security: Identify red flags such as "off-platform payment requests" or "registration fee" scams.
 
-You can do these things perfectly:
-- Analyze any job post + user's proposal draft → give score (1–10) and specific fixes
-- Rewrite any rough draft into a winning, human-sounding proposal
-- Create custom fill-in-the-blank templates for proposals, gig descriptions, follow-up messages, counter-offers, and client emails
-- Show real "Bad → Good" before/after examples
-- Teach winning proposal formulas (hook + value + proof + call-to-action)
-- Spot client red flags and scams (including Ethiopia-targeted scams)
-- Give client communication scripts (first reply, negotiation, asking for feedback)
-- Explain platform differences simply (connects vs gigs, fees, visibility tricks)
-- Explain how to set up Payoneer, withdraw earnings, convert to ETB
-- Create quick checklists (profile optimization, daily proposal routine)
-
-Tone: Encouraging but honest. If something is weak, say it kindly ("This part is holding you back — here's how to fix it in 30 seconds").
-
-When user first messages you, greet them warmly and ask these 3 quick questions (only if they haven't told you yet):
-1. Which platform are you using most right now?
-2. What is your skill (e.g., graphic design, writing, web development)?
-3. What is your biggest struggle with proposals right now?
-
-Start by making the user feel understood: "I know exactly how confusing and frustrating proposals can be when you're just starting — especially as an Ethiopian freelancer dealing with payment issues on top of everything else. I've got you."
-
-Important safety rules:
-- Never promise jobs or money.
-- Always remind: "This is advice based on real freelancer experience. Final decision is yours. Test small."`;
+Tone: Professional, expert, and encouraging. Focus on "technical excellence" and "market readiness."`;
 
 export async function getAIResponse(
   history: Content[],
   userMessage: string
 ): Promise<string> {
-  requireGeminiKey();
+  const key = process.env.GEMINI_API_KEY;
+  const isMock = !key || key === 'your_gemini_api_key_here';
+
+  if (isMock) {
+    return `[SIMULATED RESPONSE]
+Your proposal looks promising! As a professional coach, I've analyzed your input. 
+
+**Feedback:**
+- **Clarity**: High. You clearly stated your value proposition.
+- **Market Alignment**: Good. You've addressed the regional settlement needs appropriately.
+
+**Suggested Improvement:**
+Try to be more specific about your past performance with international clients. Mentioning your Payoneer-verified account can build trust.
+
+*Note: This is a simulated response because a live Gemini API key is not configured in the backend/.env file.*`;
+  }
+
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
     systemInstruction: SYSTEM_PROMPT,
   });
 
-  const chat = model.startChat({ history });
-  const result = await chat.sendMessage(userMessage);
-  return result.response.text();
+  try {
+    const chat = model.startChat({ history });
+    const result = await chat.sendMessage(userMessage);
+    return result.response.text();
+  } catch (error: any) {
+    if (error.message?.includes('API_KEY_INVALID') || error.message?.includes('key not valid')) {
+      return `[API KEY ERROR]
+It looks like your Gemini API key is invalid. To fix this, update the \`GEMINI_API_KEY\` in your \`backend/.env\` file with a valid key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+
+In the meantime, I can provide simulated advice! (See above for the error).`;
+    }
+    throw error;
+  }
 }
 
 export async function analyzeScamRisk(text: string): Promise<{
@@ -85,12 +83,20 @@ export async function analyzeScamRisk(text: string): Promise<{
   requireGeminiKey();
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-  const patternsResult = await pool.query(
-    `SELECT pattern_type, pattern_text FROM scam_patterns ORDER BY created_at DESC LIMIT 50`
-  );
-  const patterns = patternsResult.rows
-    .map((r) => `- (${r.pattern_type}) ${r.pattern_text}`)
-    .join('\n');
+  let patterns = '- (none yet available)';
+  try {
+    const isDbConnected = await pool.query('SELECT 1').then(() => true).catch(() => false);
+    if (isDbConnected) {
+      const patternsResult = await pool.query(
+        `SELECT pattern_type, pattern_text FROM scam_patterns ORDER BY created_at DESC LIMIT 50`
+      );
+      patterns = patternsResult.rows
+        .map((r: any) => `- (${r.pattern_type}) ${r.pattern_text}`)
+        .join('\n');
+    }
+  } catch (dbError) {
+    console.warn('Scam Analysis: Database unavailable, skipping pattern fetch.');
+  }
 
   const prompt = `You are a scam detection expert for freelancers, with special knowledge of scams targeting Ethiopian freelancers.
 
@@ -121,43 +127,57 @@ Common red flags to check:
 - Grammar/spelling that suggests automated scam messages
 - Requests to send money first`;
 
-  const result = await model.generateContent(prompt);
-  const responseText = result.response.text().trim();
-
-  const ScamSchema = z.object({
-    riskLevel: z.enum(['low', 'medium', 'high']),
-    redFlags: z.array(z.string()).default([]),
-    explanation: z.string(),
-    recommendation: z.string(),
-  });
-
-  const tryParse = (raw: string) => {
-    const cleaned = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
-    const parsed = ScamSchema.safeParse(JSON.parse(cleaned));
-    return parsed.success ? parsed.data : null;
-  };
-
   try {
-    const parsed = tryParse(responseText);
-    if (parsed) return parsed;
-  } catch {
-    // continue to repair
-  }
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text().trim();
 
-  try {
-    const repairPrompt = `Fix this into valid JSON that matches the required schema exactly. Output ONLY JSON.\n\n${responseText}`;
-    const repair = await model.generateContent(repairPrompt);
-    const repairedText = repair.response.text().trim();
-    const repaired = tryParse(repairedText);
-    if (repaired) return repaired;
-  } catch {
-    // ignore
+    const ScamSchema = z.object({
+      riskLevel: z.enum(['low', 'medium', 'high']),
+      redFlags: z.array(z.string()).default([]),
+      explanation: z.string(),
+      recommendation: z.string(),
+    });
+
+    const tryParse = (raw: string) => {
+      const cleaned = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+      const parsed = ScamSchema.safeParse(JSON.parse(cleaned));
+      return parsed.success ? parsed.data : null;
+    };
+
+    try {
+      const parsed = tryParse(responseText);
+      if (parsed) return parsed;
+    } catch {
+      // continue to repair
+    }
+
+    try {
+      const repairPrompt = `Fix this into valid JSON that matches the required schema exactly. Output ONLY JSON.\n\n${responseText}`;
+      const repair = await model.generateContent(repairPrompt);
+      const repairedText = repair.response.text().trim();
+      const repaired = tryParse(repairedText);
+      if (repaired) return repaired;
+    } catch {
+      // ignore
+    }
+  } catch (error: any) {
+    const isKeyError = error.message?.includes('API_KEY_INVALID') || error.message?.includes('key not valid') || !process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_api_key_here';
+    
+    if (isKeyError) {
+      return {
+        riskLevel: 'medium',
+        redFlags: ['Simulated analysis: No valid API Key'],
+        explanation: 'This is a placeholder analysis. To get real AI-powered detection, please configure a valid Gemini API key.',
+        recommendation: 'Check the backend/.env file and provide a valid key from Google AI Studio.',
+      };
+    }
+    throw error;
   }
 
   return {
     riskLevel: 'medium',
     redFlags: ['Unable to fully analyze — review manually'],
-    explanation: responseText,
+    explanation: 'Analysis timed out or returned unexpected format.',
     recommendation: 'Proceed with caution. Research the client before accepting.',
   };
 }

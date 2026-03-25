@@ -90,6 +90,16 @@ export function CoachPage() {
     }
   };
 
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, busy]);
+
   const onSend = async () => {
     if (!canSend) return;
     const text = draft.trim();
@@ -104,21 +114,11 @@ export function CoachPage() {
   };
 
   return (
-    <div className="container">
+    <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {!onboarded ? <Onboarding onComplete={handleOnboarding} /> : null}
 
-      <div className="flex gap-4" style={{ alignItems: 'stretch' }}>
-        <Sidebar
-          conversations={conversations}
-          activeId={activeConversationId}
-          onSelect={(id) => setActiveConversationId(id)}
-          onNew={newChat}
-          onDelete={deleteChat}
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-        />
-
-        <section className="card card-glow" style={{ padding: 0, flex: 1 }}>
+      <div className="flex gap-4" style={{ alignItems: 'stretch', flex: 1, minHeight: 0 }}>
+        <section className="card card-glow" style={{ padding: 0, flex: 1, display: 'flex', flexDirection: 'column', minHeight: '500px', maxHeight: '75vh' }}>
           <div style={{ padding: 14, borderBottom: '1px solid var(--border)' }} className="flex justify-between items-center gap-3">
             <div>
               <div style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>ProposalWin AI Coach</div>
@@ -131,21 +131,34 @@ export function CoachPage() {
             </button>
           </div>
 
-          <div style={{ padding: 16, height: '60vh', overflowY: 'auto' }}>
+          <div style={{ padding: 16, flex: 1, overflowY: 'auto' }}>
             {messages.length === 0 ? (
               <div style={{ color: 'var(--text-secondary)' }}>
                 Start by pasting a job post, or ask: “Write me a proposal for this job description…”
               </div>
             ) : (
-              messages.map((m) => <MessageBubble key={m.id} message={m} />)
+              <div className="flex flex-col gap-4">
+                {messages.map((m) => <MessageBubble key={m.id} message={m} />)}
+              </div>
             )}
             {busy ? <TypingIndicator /> : null}
+            <div ref={messagesEndRef} />
           </div>
 
           <div style={{ padding: 14, borderTop: '1px solid var(--border)' }}>
             <ChatInput value={draft} onChange={setDraft} onSend={onSend} disabled={busy} />
           </div>
         </section>
+
+        <Sidebar
+          conversations={conversations}
+          activeId={activeConversationId}
+          onSelect={(id) => setActiveConversationId(id)}
+          onNew={newChat}
+          onDelete={deleteChat}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
       </div>
     </div>
   );

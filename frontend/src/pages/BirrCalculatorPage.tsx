@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 export function BirrCalculatorPage() {
   const [usd, setUsd] = useState(100);
@@ -24,10 +24,11 @@ export function BirrCalculatorPage() {
 
   return (
     <div className="container">
-      <section className="card card-glow" style={{ padding: 22 }}>
-        <h1 className="display-md">Birr Conversion Calculator</h1>
+      <section className="card card-glow" style={{ padding: '32px 22px' }}>
+        <h1 className="display-md">Market Spread & Net Earnings Calculator</h1>
         <p style={{ marginTop: 8, color: 'var(--text-secondary)' }}>
-          Estimate take-home after platform fee, payout fee, and ETB conversion spread. Treat this as an estimate.
+          Analyze estimated net earnings after platform fees, settlement costs, and forex market spreads. 
+          Use for technical planning and budgetary research.
         </p>
 
         <div className="divider" />
@@ -67,7 +68,7 @@ export function BirrCalculatorPage() {
                 />
               </label>
               <label>
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Conversion loss (%)</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Forex Spread / Market Adjustment (%)</div>
                 <input
                   className="input"
                   type="number"
