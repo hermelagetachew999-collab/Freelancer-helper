@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type Skill = 'design' | 'writing' | 'dev' | 'video' | 'data' | 'other';
 type WorkStyle = 'longTerm' | 'quickGigs';
@@ -39,6 +40,7 @@ function scorePlatform(p: Platform, a: Answers) {
 }
 
 export function PlatformPickerPage() {
+  const navigate = useNavigate();
   const [answers, setAnswers] = useState<Answers>({
     skill: null,
     workStyle: null,
@@ -73,6 +75,13 @@ export function PlatformPickerPage() {
   return (
     <div className="container">
       <section className="card card-glow" style={{ padding: 22 }}>
+        <button 
+          className="btn btn-ghost btn-sm" 
+          onClick={() => navigate(-1)} 
+          style={{ marginBottom: 16, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+        >
+          ← Back
+        </button>
         <h1 className="display-md">Platform Picker</h1>
         <p style={{ marginTop: 8, color: 'var(--text-secondary)' }}>
           Answer 4 quick questions. We’ll recommend platforms compatible with P2P settlement (Bybit/Binance/MEXC).

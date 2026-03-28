@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function BirrCalculatorPage() {
+  const navigate = useNavigate();
   const [usd, setUsd] = useState(100);
   const [platformFeePct, setPlatformFeePct] = useState(10);
   const [payoutFeePct, setPayoutFeePct] = useState(2);
@@ -25,6 +27,13 @@ export function BirrCalculatorPage() {
   return (
     <div className="container">
       <section className="card card-glow" style={{ padding: '32px 22px' }}>
+        <button 
+          className="btn btn-ghost btn-sm" 
+          onClick={() => navigate(-1)} 
+          style={{ marginBottom: 16, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+        >
+          ← Back
+        </button>
         <h1 className="display-md">Market Spread & Net Earnings Calculator</h1>
         <p style={{ marginTop: 8, color: 'var(--text-secondary)' }}>
           Analyze estimated net earnings after platform fees, settlement costs, and forex market spreads. 

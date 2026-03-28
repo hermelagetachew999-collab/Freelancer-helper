@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { guidesApi } from '../api/client';
@@ -9,6 +9,7 @@ import { useSessionId } from '../hooks/useSession';
 
 export function PlatformGuidePage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const sessionId = useSessionId();
 
   const [guide, setGuide] = useState<GuideDetail | null>(null);
@@ -49,6 +50,13 @@ export function PlatformGuidePage() {
   return (
     <div className="container">
       <section className="card card-glow" style={{ padding: 22 }}>
+        <button 
+          className="btn btn-ghost btn-sm" 
+          onClick={() => navigate(-1)} 
+          style={{ marginBottom: 16, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+        >
+          ← Back
+        </button>
         {error ? <div style={{ color: 'var(--red)' }}>{error}</div> : null}
         {guide ? (
           <>
