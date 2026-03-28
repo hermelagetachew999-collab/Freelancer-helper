@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 export function FeeCalculator() {
   const [usd, setUsd] = useState(200);
   const [platformFeePct, setPlatformFeePct] = useState(10);
-  const [conversionRate, setConversionRate] = useState(58);
+  const [conversionRate, setConversionRate] = useState(156.35);
 
   const calc = useMemo(() => {
     const afterFeeUsd = usd * (1 - platformFeePct / 100);

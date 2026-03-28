@@ -4,7 +4,7 @@ export function BirrCalculatorPage() {
   const [usd, setUsd] = useState(100);
   const [platformFeePct, setPlatformFeePct] = useState(10);
   const [payoutFeePct, setPayoutFeePct] = useState(2);
-  const [rateEtbPerUsd, setRateEtbPerUsd] = useState(58);
+  const [rateEtbPerUsd, setRateEtbPerUsd] = useState(156.35);
   const [conversionLossPct, setConversionLossPct] = useState(7);
 
   const calc = useMemo(() => {

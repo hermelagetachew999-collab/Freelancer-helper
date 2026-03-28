@@ -20,9 +20,9 @@
   height: 72px; 
 }
 
-/* Burger Button */
+/* Burger Button - Mobile Only */
 .burger-btn {
-  display: flex;
+  display: none; /* Hidden on desktop */
   flex-direction: column;
   justify-content: space-around;
   width: 28px;
@@ -32,7 +32,6 @@
   cursor: pointer;
   padding: 0;
   z-index: 1100;
-  margin-left: auto;
 }
 
 .burger-bar {
@@ -56,26 +55,13 @@
   transform: rotate(-45deg);
 }
 
-/* Navigation Menu Container (Dropdown) */
+/* Navigation Menu Container */
 .nav-menu-container {
-  display: none;
-  position: fixed;
-  top: 72px;
-  left: 0;
-  width: 100%;
-  height: calc(100vh - 72px);
-  background: var(--bg-base); /* Pure solid background */
-  padding: 32px 24px;
-  flex-direction: column;
-  gap: 24px;
-  z-index: 1050;
-  overflow-y: auto;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  animation: slideDown 0.3s ease-out;
-}
-
-.nav-menu-container.active {
   display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 @keyframes slideDown {
@@ -85,15 +71,14 @@
 
 .app-nav {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  gap: 4px;
 }
 
 .app-brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex: 1;
 }
 
 .app-logo {
@@ -127,8 +112,7 @@
 
 .app-header-actions {
   display: flex;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
+  align-items: center;
 }
 
 .app-main {
@@ -138,9 +122,60 @@
   flex: 1;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 860px) {
   .app-tagline {
     display: none;
+  }
+}
+
+/* Mobile Overrides */
+@media (max-width: 768px) {
+  .burger-btn {
+    display: flex;
+    margin-left: auto;
+  }
+
+  .nav-menu-container {
+    display: none;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 72px);
+    background: var(--bg-base);
+    padding: 32px 24px;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 24px;
+    z-index: 1050;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    animation: slideDown 0.3s ease-out;
+  }
+
+  .nav-menu-container.active {
+    display: flex;
+  }
+
+  .app-nav {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .app-nav-link {
+    font-size: 1.1rem;
+    padding: 14px 20px;
+  }
+
+  .app-header-actions {
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    width: 100%;
+  }
+
+  .app-header-actions .btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
