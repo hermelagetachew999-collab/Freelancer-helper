@@ -10,5 +10,7 @@ export const paths = {
   settings: '/settings',
   login: '/login',
   signup: '/signup',
+  forgotPassword: '/forgot-password',
+  resetPassword: '/reset-password',
 } as const;
 

@@ -4,7 +4,7 @@ export function BirrCalculatorPage() {
   const [usd, setUsd] = useState(100);
   const [platformFeePct, setPlatformFeePct] = useState(10);
   const [payoutFeePct, setPayoutFeePct] = useState(2);
-  const [rateEtbPerUsd, setRateEtbPerUsd] = useState(156.35);
+  const [rateEtbPerUsd, setRateEtbPerUsd] = useState(188.0);
   const [conversionLossPct, setConversionLossPct] = useState(7);
 
   const calc = useMemo(() => {
@@ -59,7 +59,7 @@ export function BirrCalculatorPage() {
                 />
               </label>
               <label>
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>ETB per USD</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>ETB per USD (P2P Market)</div>
                 <input
                   className="input"
                   type="number"

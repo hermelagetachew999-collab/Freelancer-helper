@@ -93,4 +93,8 @@ export const authApi = {
   login: (email: string, password: string, sessionId?: string) =>
     api.post<{ account: Account }>('/auth/login', { email, password, sessionId }),
   logout: () => api.post('/auth/logout'),
+  forgotPassword: (email: string) =>
+    api.post<{ success: boolean; message: string }>('/auth/forgot-password', { email }),
+  resetPassword: (email: string, code: string, newPassword: string) =>
+    api.post<{ success: boolean; message: string }>('/auth/reset-password', { email, code, newPassword }),
 };

@@ -92,8 +92,10 @@ export async function runMigrations(): Promise<void> {
       VALUES
         ('payment', 'Pay a registration fee / activation fee'),
         ('payment', 'Western Union / MoneyGram only'),
+        ('payment', 'P2P payment without platform escrow release'),
+        ('payment', 'Sending crypto to "support" for verification'),
         ('off_platform', 'Let''s move to Telegram/WhatsApp/email before contract'),
-        ('credentials', 'Send me your bank login / Upwork login'),
+        ('credentials', 'Send me your exchange login / API keys'),
         ('advance_work', 'Work first, I will pay later after delivery')
       ON CONFLICT (pattern_type, pattern_text) DO NOTHING;
 
@@ -130,148 +132,102 @@ export async function runMigrations(): Promise<void> {
         UNIQUE (guide_id, session_id)
       );
 
-      INSERT INTO guides (guide_type, slug, title, content_md, last_verified)
-      VALUES
-        ('payment', 'payment-matrix', 'Payment Method Matrix (Ethiopia)', $$
-## What works in Ethiopia (quick matrix)
+      CREATE TABLE IF NOT EXISTS password_reset_codes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        email TEXT NOT NULL,
+        code TEXT NOT NULL,
+        expires_at TIMESTAMPTZ NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
 
-Legend: ✅ works · ⚠️ possible but tricky · ❌ not supported
-
-| Platform | Payoneer | Direct Bank | PayPal (receive) | Wise | Grey.co |
-|---|---:|---:|---:|---:|---:|
-| Upwork | ✅ | ⚠️ | ❌ | ⚠️ | ⚠️ |
-| Fiverr | ✅ | ⚠️ | ❌ | ⚠️ | ⚠️ |
-| PeoplePerHour | ⚠️ | ⚠️ | ❌ | ⚠️ | ⚠️ |
-| Freelancer.com | ⚠️ | ⚠️ | ❌ | ⚠️ | ⚠️ |
-
-This is a starting point. Always verify based on your account + current rules.
-$$, CURRENT_DATE),
-
-        ('payment', 'payoneer-setup', 'Payoneer Setup Guide (Ethiopia)', $$
-## Payoneer setup (Ethiopia)
-
-### Before you apply
-- Use **your real name** exactly as on your ID/passport.
-- Use a **reliable email** you can keep long-term.
-- Prepare your **supporting documents** (passport is best).
-
-### Common rejection reasons
-- Name mismatch (profile vs document)
-- Low-quality photo (glare, blur, cropped edges)
-- Address inconsistency
-
-### If you get rejected
-- Fix one thing at a time, then re-submit.
-- Use clear photos in daylight (no flash glare).
-
-Next step: tell me your platform (Upwork/Fiverr/etc.) and what document you have.
-$$, CURRENT_DATE),
-
-        ('payment', 'paypal-alternatives', 'PayPal is blocked — what to do instead', $$
-## PayPal in Ethiopia (honest answer)
-
-PayPal typically **does not support receiving money** in Ethiopia. Avoid risky “workarounds” that can get you banned or scammed.
-
-### Good alternatives
-- **Payoneer** (most common)
-- **Grey.co** (where available)
-- **Wise** (depends on availability and account type)
-
-### What to avoid
-- Anyone asking you to “use their PayPal”
-- Paying “activation fees”
-- Giving access to your accounts
-$$, CURRENT_DATE),
-
-        ('payment', 'birr-conversion-calculator', 'Birr Conversion Calculator', $$
-## Birr conversion calculator
-
-Use the calculator on this page to estimate your take-home after:\n- platform fee\n- payout fee\n- ETB conversion spread\n\nAlways treat results as estimates.
-$$, CURRENT_DATE),
-
-        ('payment', 'withdrawal-comparison', 'Withdrawal Comparison (Payoneer vs alternatives)', $$
-## Withdrawal comparison
-
-Compare by:\n- fees\n- speed\n- reliability\n- proof requirements\n\nWe’ll keep this guide updated and show a “Last Verified” date.
-$$, CURRENT_DATE),
-
-        ('payment', 'upwork-id-verification', 'Upwork ID Verification (Ethiopia)', $$
-## Upwork ID verification tips (Ethiopia)
-
-Best success rate:\n- Ethiopian **passport** (clean photo, no glare)\n\nTips:\n- bright daylight\n- no reflections\n- capture all corners\n- don’t edit/beautify images
-$$, CURRENT_DATE)
-      ON CONFLICT (slug) DO NOTHING;
+      CREATE INDEX IF NOT EXISTS idx_reset_codes_email ON password_reset_codes(email);
 
       INSERT INTO guides (guide_type, slug, title, content_md, last_verified)
       VALUES
-        ('platform', 'upwork', 'Upwork Guide (with Ethiopia Section)', $$
-## Overview
-Upwork is a proposal-based platform. You spend **Connects** to apply. Winning early depends on profile basics + strong proposals.
+        ('payment', 'p2p-usd-guide', 'Buying USD via P2P (Bybit/Binance/MEXC)', $$
+## Buying USD via P2P
+For freelancers in Ethiopia, Peer-to-Peer (P2P) trading on platforms like **Bybit**, **Binance**, or **MEXC** is an efficient way to acquire USD for business expenses.
 
-## Fees (plain English)
-- You pay a service fee on earnings (rules can change).
-- You may also spend Connects to apply.
+### Steps:
+1. **Verify Identity**: Complete KYC on the exchange.
+2. **Select P2P**: Choose "Buy" and select "USD" (or USDT).
+3. **Filter Payment**: Select local payment methods compatible with your bank.
+4. **Choose Merchant**: Select sellers with high completion rates (95%+).
+5. **Release**: Follow the escrow instructions carefully.
 
-## Algorithm / what matters
-- Relevance to the job\n- Proof (portfolio, results)\n- Responsiveness\n
-## Common mistakes
-- Generic proposals\n- No clear deliverables\n- Applying to bad jobs\n
-## Pro tips
-- Hook: mirror the job in 1–2 lines\n- Value: show the exact steps you’ll do\n- Proof: 1 link or short example\n- CTA: 1 question + suggest next step\n
-## Ethiopia Section (🇪🇹)
-- **PayPal receiving is blocked** in Ethiopia. Don’t plan around it.\n- **Payoneer** is the most common withdrawal route.\n- ID verification: Ethiopian **passport** tends to work best.\n
+*Tip: Always use the platform's internal chat for communication.*
 $$, CURRENT_DATE),
 
-        ('platform', 'fiverr', 'Fiverr Guide (with Ethiopia Section)', $$
-## Overview
-Fiverr is gig-based. Buyers find you via search; your gig + reviews matter a lot.
+        ('payment', 'virtual-visa-bybit', 'How to get a Virtual VISA Card on Bybit', $$
+## Virtual VISA Card (Bybit)
+A virtual VISA card allows you to pay for international services like Upwork Connects or online subscriptions directly.
 
-## Fees (plain English)
-- Fiverr takes a service fee from orders.
+### How to obtain:
+1. Navigate to the **Bybit Card** section in the app.
+2. Apply for the virtual version (requires identity verification).
+3. Top up your card using your USDT/USD balance from P2P.
+4. Access card details (number, CVV) for online transactions.
+$$, CURRENT_DATE),
 
-## What matters
-- Gig keyword targeting\n- Thumbnail + gallery\n- Fast responses\n- On-time delivery\n
-## Common mistakes
-- Vague packages\n- No examples\n- Accepting unclear orders\n
-## Pro tips
-- Create 2–3 focused gigs\n- Use clear deliverables + timelines\n- Add a short FAQ\n
-## Ethiopia Section (🇪🇹)
-- Receiving via PayPal is not reliable for Ethiopia.\n- **Payoneer** is commonly used.\n- Watch for buyers pushing off-platform contact.\n
-$$, CURRENT_DATE)
-      ON CONFLICT (slug) DO NOTHING;
+        ('platform', 'upwork-connects', 'Upwork Connects: Buying and Strategic Use', $$
+## Managing Upwork Connects
+Connects are your "currency" to apply for jobs. Use them wisely to maintain a high ROI.
 
-      INSERT INTO guides (guide_type, slug, title, content_md, last_verified)
-      VALUES
-        ('blog', 'payoneer-in-ethiopia', 'How to Set Up Payoneer in Ethiopia (2026)', $$
-## Quick overview
-If you’re in Ethiopia, **Payoneer** is the most common way to receive freelance earnings from platforms like Upwork/Fiverr.
+### Buying Connects:
+- Use a virtual VISA card (like Bybit's) if local cards are restricted.
+- Go to **Settings > Billing & Payments** to add your card.
+- Purchase bundles to save on transaction frequency.
 
-## Checklist
-- Real name matches your document\n- Clean photo of passport (best)\n- Consistent address\n
-## Common rejection fixes
-- Re-take photos in daylight\n- Fix name mismatch\n- Submit one change at a time\n
+### Strategic Use:
+- **Avoid Crowded Jobs**: Don't waste connects on jobs with 50+ applications unless you are a perfect match.
+- **Boost Strategically**: Only boost your proposal if you are in the top 3 specialized matches.
+- **Target Recently Posted**: Apply to jobs posted within the last 1–2 hours.
 $$, CURRENT_DATE),
-        ('blog', 'avoid-scam-clients', 'Freelance Scams Targeting Ethiopians (Red Flags)', $$
-## Red flags
-- Registration fee\n- Western Union\n- Off-platform pressure\n- Asking for credentials\n
-## What to do
-Stay on-platform. Don’t share sensitive info. Report the client.
+
+        ('blog', 'professional-proposals', 'Strategic Proposal Writing: Hook, Value, CTA', $$
+## Writing Professional Proposals
+A winning proposal is concise, client-focused, and professional.
+
+### Structure:
+1. **The Hook**: Address the client's specific problem in the first 2 lines.
+2. **The Value**: Explain *how* you will solve it, mentioning similar past success.
+3. **The Proof**: Provide one specific link or attachment relevant to the task.
+4. **The CTA**: End with a question or a suggestion for a brief discovery call.
+
+*Example: "I noticed your site has a slow checkout flow. I recently optimized a similar React app, reducing drop-off by 20%..."*
 $$, CURRENT_DATE),
-        ('blog', 'best-platforms-designers-et', 'Best Platforms for Ethiopian Designers (Starter Guide)', $$
-## Short answer
-- Gig work: Fiverr\n- Long-term projects: Upwork\n
-## Ethiopia note
-Always confirm withdrawal methods before you commit.\n
+
+        ('blog', 'pricing-by-experience', 'Managing Prices Based on Experience Tiers', $$
+## Pricing Strategies
+Adjust your rates as your expertise and "Social Proof" (reviews) grow.
+
+### Experience Tiers:
+- **Beginner ($10–$20/hr)**: Focus on building your portfolio and acquisition of 5-star reviews.
+- **Intermediate ($25–$50/hr)**: Specialize in a niche. Leverage your proven track record.
+- **Expert ($60+/hr)**: Focus on high-value consulting and complex problem-solving.
+
+*Tip: Research "Market Rates" for your specific skill on Upwork to stay competitive.*
 $$, CURRENT_DATE),
-        ('blog', 'withdraw-upwork-cbe', 'How to Withdraw Upwork Earnings to Ethiopian Banks (CBE etc.)', $$
-## Reality check
-Direct bank withdrawals can be tricky. Payoneer is usually simpler.\n
-## Steps
-1) Confirm your available withdrawal options in Upwork\n2) Choose the safest option\n3) Track fees and ETB conversion\n
+
+        ('platform', 'fiverr-gigs-niche', 'Fiverr: Gig Creation and Niche Selection', $$
+## Fiverr Success
+Success on Fiverr requires high visibility and a clear "Niche" (specialization).
+
+### Gig Checklist:
+- **Niche Down**: Instead of "Graphic Design," try "Logo Design for Organic Skincare Brands."
+- **Visuals**: Use high-quality, professional thumbnails.
+- **Packages**: Offer three tiers (Basic, Standard, Premium) with clear deliverables.
+- **SEO**: Use 5 relevant tags and include keywords in your title.
 $$, CURRENT_DATE),
-        ('blog', 'proposal-zero-replies', 'Zero Replies on Upwork? Fix These 5 Things First', $$
-## The 5 fixes
-1) Target better jobs\n2) Strong first 2 lines\n3) Proof link\n4) Clear deliverables\n5) One good question\n
+
+        ('platform', 'other-platforms', 'Other Platforms: PeoplePerHour and Beyond', $$
+## Expanding Your Reach
+Don't rely on a single platform. Explore others to find your best fit.
+
+### Alternatives:
+- **PeoplePerHour**: Great for European clients and fixed-price projects.
+- **Freelancer.com**: High volume of technical and data-entry work.
+- **Contra**: A modern platform focused on high-end creative portfolios.
 $$, CURRENT_DATE)
       ON CONFLICT (slug) DO NOTHING;
     `);

@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 export function FeeCalculator() {
   const [usd, setUsd] = useState(200);
   const [platformFeePct, setPlatformFeePct] = useState(10);
-  const [conversionRate, setConversionRate] = useState(156.35);
+  const [conversionRate, setConversionRate] = useState(188.0);
 
   const calc = useMemo(() => {
     const afterFeeUsd = usd * (1 - platformFeePct / 100);
@@ -31,7 +31,7 @@ export function FeeCalculator() {
           />
         </label>
         <label style={{ flex: '1 1 180px' }}>
-          <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>ETB per USD</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>ETB per USD (P2P Rate)</div>
           <input
             className="input"
             type="number"

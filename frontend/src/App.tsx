@@ -16,6 +16,8 @@ import { PlatformPickerPage } from './pages/PlatformPickerPage';
 import { BlogHome } from './pages/BlogHome';
 import { BlogPostPage } from './pages/BlogPostPage';
 import { AdminPage } from './pages/AdminPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 
 function App() {
   return (
@@ -39,6 +41,8 @@ function App() {
         <Route path={paths.settings} element={<SettingsPage />} />
         <Route path={paths.login} element={<LoginPage />} />
         <Route path={paths.signup} element={<SignupPage />} />
+        <Route path={paths.forgotPassword} element={<ForgotPasswordPage />} />
+        <Route path={paths.resetPassword} element={<ResetPasswordPage />} />
         <Route path="*" element={<Navigate to={paths.home} replace />} />
       </Route>
     </Routes>

@@ -116,5 +116,69 @@ router.get('/me', async (req: Request, res: Response) => {
   }
 });
 
+// FORGOT PASSWORD - Generate and "send" code
+router.post('/forgot-password', async (req: Request, res: Response) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  try {
+    const user = await pool.query('SELECT id FROM accounts WHERE email = $1', [email.toLowerCase()]);
+    if (user.rowCount === 0) {
+      // Security: don't reveal if user exists, but for this app's context we can be helpful OR silent.
+      // Let's be silent but return success to avoid enumeration.
+      return res.json({ success: true, message: 'If an account exists, a code was sent.' });
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+
+    await pool.query(
+      'INSERT INTO password_reset_codes (email, code, expires_at) VALUES ($1, $2, $3)',
+      [email.toLowerCase(), code, expiresAt]
+    );
+
+    console.log(`\n--- VERIFICATION CODE FOR ${email} ---\nCODE: ${code}\n-----------------------------------\n`);
+
+    return res.json({ success: true, message: 'Verification code sent to your email (check server console).' });
+  } catch (e) {
+    console.error('Forgot password error:', e);
+    return res.status(500).json({ error: 'Failed to process request' });
+  }
+});
+
+// RESET PASSWORD - Verify code and update password
+router.post('/reset-password', async (req: Request, res: Response) => {
+  const { email, code, newPassword } = req.body;
+  if (!email || !code || !newPassword) {
+    return res.status(400).json({ error: 'Email, code, and new password are required' });
+  }
+
+  if (newPassword.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT id FROM password_reset_codes WHERE email = $1 AND code = $2 AND expires_at > NOW()',
+      [email.toLowerCase(), code]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(400).json({ error: 'Invalid or expired verification code' });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await pool.query('UPDATE accounts SET password_hash = $1 WHERE email = $2', [passwordHash, email.toLowerCase()]);
+    
+    // Clean up codes for this email
+    await pool.query('DELETE FROM password_reset_codes WHERE email = $1', [email.toLowerCase()]);
+
+    return res.json({ success: true, message: 'Password has been reset successfully.' });
+  } catch (e) {
+    console.error('Reset password error:', e);
+    return res.status(500).json({ error: 'Failed to reset password' });
+  }
+});
+
 export default router;
 

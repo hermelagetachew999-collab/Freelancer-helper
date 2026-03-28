@@ -46,6 +46,11 @@ export function LoginPage() {
           <button className="btn btn-primary" onClick={submit} disabled={busy || !email || !password}>
             {busy ? 'Logging in…' : 'Log in'}
           </button>
+          <div style={{ textAlign: 'center', marginTop: 10 }}>
+            <button className="btn btn-ghost btn-sm" onClick={() => nav(paths.forgotPassword)}>
+              Forgot Password?
+            </button>
+          </div>
         </div>
       </section>
     </div>

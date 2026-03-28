@@ -7,11 +7,11 @@ dotenv.config();
 
 function requireGeminiKey() {
   const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error('GEMINI_API_KEY is not configured');
+  if (!key || key === 'your_gemini_api_key_here') return null;
   return key;
 }
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'no_key_provided');
 
 export const SYSTEM_PROMPT = `You are "ProposalWin AI" — a professional coach for Proposal & Client-Winning Mastery on freelance platforms, specialized in the Ethiopian market.
 
@@ -22,12 +22,12 @@ Your purpose is to provide research-backed, actionable advice to help freelancer
 Core rules:
 1. Provide professional, clear, and actionable feedback. Use structured formatting and clear next steps.
 2. Maintain technical accuracy regarding international financial rails (e.g., Payoneer, Wise, and alternative settlement methods).
-3. Factor in regional constraints: PayPal receiving limitations, ID verification standards for Ethiopia, and forex market spreads.
+3. Factor in regional constraints: PayPal receiving limitations, ID verification standards for Ethiopia (Passport or National ID), and forex market spreads.
 4. Every response must include a clear, professional action the user can take.
 
 Regional Technical Knowledge:
-- Payoneer is a primary method for international settlement in Ethiopia.
-- For Upwork ID verification: Passport is recommended for highest success rates; ensure professional lighting and documentation.
+- For international settlement in Ethiopia, advocate for P2P trading via Bybit, Binance, or MEXC.
+- For Upwork ID verification: Passport or National ID are acceptable; ensure professional lighting and clear documentation.
 - Market Analysis: Note that exchange rates fluctuate (e.g., official vs. market-based spreads like 1 USD ≈ 155–185+ ETB). Always advise users to perform their own fiscal due diligence.
 - Security: Identify red flags such as "off-platform payment requests" or "registration fee" scams.
 
@@ -49,7 +49,7 @@ Your proposal looks promising! As a professional coach, I've analyzed your input
 - **Market Alignment**: Good. You've addressed the regional settlement needs appropriately.
 
 **Suggested Improvement:**
-Try to be more specific about your past performance with international clients. Mentioning your Payoneer-verified account can build trust.
+Try to be more specific about your past performance with international clients. Mentioning your verified Upwork profile can build trust.
 
 *Note: This is a simulated response because a live Gemini API key is not configured in the backend/.env file.*`;
   }
@@ -80,7 +80,18 @@ export async function analyzeScamRisk(text: string): Promise<{
   explanation: string;
   recommendation: string;
 }> {
-  requireGeminiKey();
+  const key = requireGeminiKey();
+  const isMock = !key;
+
+  if (isMock) {
+    return {
+      riskLevel: 'medium',
+      redFlags: ['[MOCK] No valid API Key found'],
+      explanation: 'This is a simulated analysis because a live Gemini API key is not configured. In a real scenario, I would analyze the text against known patterns.',
+      recommendation: 'Configure your GEMINI_API_KEY in the backend/.env file to enable real-time detection.',
+    };
+  }
+
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   let patterns = '- (none yet available)';
@@ -120,9 +131,11 @@ Common red flags to check:
 - Requests to communicate or pay outside the platform
 - Unrealistic pay rates (too high or too low)
 - Urgency/pressure tactics  
-- Requests for personal info (bank details, national ID) before contract
+- Requests for personal info (bank details) before contract
 - "Pay registration fee" or "buy a kit" requests
 - Western Union / MoneyGram payment requests
+- P2P payment without platform escrow release
+- Sending crypto to "support" for verification
 - Vague job descriptions with no clear deliverables
 - Grammar/spelling that suggests automated scam messages
 - Requests to send money first`;

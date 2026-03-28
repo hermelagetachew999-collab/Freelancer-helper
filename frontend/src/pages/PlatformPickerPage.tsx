@@ -3,23 +3,20 @@ import { useMemo, useState } from 'react';
 type Skill = 'design' | 'writing' | 'dev' | 'video' | 'data' | 'other';
 type WorkStyle = 'longTerm' | 'quickGigs';
 type Availability = 'low' | 'medium' | 'high';
-type PaymentPref = 'payoneer' | 'bank' | 'any';
-
 type Answers = {
   skill: Skill | null;
   workStyle: WorkStyle | null;
   incomeGoal: 'side' | 'full' | null;
   availability: Availability | null;
-  payment: PaymentPref | null;
 };
 
 type Platform = 'Upwork' | 'Fiverr' | 'PeoplePerHour' | 'Freelancer.com';
 
-const paymentCompatibility: Record<Platform, { payoneer: boolean; bank: boolean }> = {
-  Upwork: { payoneer: true, bank: true },
-  Fiverr: { payoneer: true, bank: true },
-  PeoplePerHour: { payoneer: false, bank: false },
-  'Freelancer.com': { payoneer: false, bank: false },
+const paymentCompatibility: Record<Platform, { p2p: boolean }> = {
+  Upwork: { p2p: true },
+  Fiverr: { p2p: true },
+  PeoplePerHour: { p2p: false },
+  'Freelancer.com': { p2p: false },
 };
 
 function scorePlatform(p: Platform, a: Answers) {
@@ -47,7 +44,6 @@ export function PlatformPickerPage() {
     workStyle: null,
     incomeGoal: null,
     availability: null,
-    payment: null,
   });
 
   const complete = Object.values(answers).every(Boolean);
@@ -56,11 +52,7 @@ export function PlatformPickerPage() {
     if (!complete) return [];
     const platforms: Platform[] = ['Upwork', 'Fiverr', 'PeoplePerHour', 'Freelancer.com'];
 
-    const filtered = platforms.filter((p) => {
-      if (answers.payment === 'payoneer') return paymentCompatibility[p].payoneer;
-      if (answers.payment === 'bank') return paymentCompatibility[p].bank;
-      return true;
-    });
+    const filtered = platforms.filter((p) => paymentCompatibility[p].p2p);
 
     return filtered
       .map((p) => ({ platform: p, score: scorePlatform(p, answers) }))
@@ -75,7 +67,7 @@ export function PlatformPickerPage() {
   };
 
   const reset = () => {
-    setAnswers({ skill: null, workStyle: null, incomeGoal: null, availability: null, payment: null });
+    setAnswers({ skill: null, workStyle: null, incomeGoal: null, availability: null });
   };
 
   return (
@@ -83,7 +75,7 @@ export function PlatformPickerPage() {
       <section className="card card-glow" style={{ padding: 22 }}>
         <h1 className="display-md">Platform Picker</h1>
         <p style={{ marginTop: 8, color: 'var(--text-secondary)' }}>
-          Answer 5 quick questions. We’ll recommend platforms that make sense in Ethiopia (payment compatibility included).
+          Answer 4 quick questions. We’ll recommend platforms compatible with P2P settlement (Bybit/Binance/MEXC).
         </p>
 
         <div className="divider" />
@@ -147,20 +139,6 @@ export function PlatformPickerPage() {
                   <option value="high">High (daily)</option>
                 </select>
               </label>
-
-              <label>
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>5) Payment preference</div>
-                <select
-                  className="input"
-                  value={answers.payment ?? ''}
-                  onChange={(e) => setAnswers((a) => ({ ...a, payment: (e.target.value || null) as PaymentPref | null }))}
-                >
-                  <option value="">Select…</option>
-                  <option value="payoneer">Payoneer</option>
-                  <option value="bank">Direct bank (if possible)</option>
-                  <option value="any">Any that works</option>
-                </select>
-              </label>
             </div>
 
             <div className="divider" />
@@ -188,10 +166,6 @@ export function PlatformPickerPage() {
                     <div className="flex justify-between items-center">
                       <strong>{r.platform}</strong>
                       <span className="badge badge-purple">{r.score}% match</span>
-                    </div>
-                    <div style={{ marginTop: 6, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                      Payment compatibility: {paymentCompatibility[r.platform].payoneer ? 'Payoneer ✓' : 'Payoneer ✕'} ·{' '}
-                      {paymentCompatibility[r.platform].bank ? 'Bank ✓' : 'Bank ✕'}
                     </div>
                   </div>
                 ))}
