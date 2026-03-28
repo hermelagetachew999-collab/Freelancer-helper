@@ -17,14 +17,16 @@ export function useAuth() {
     (async () => {
       try {
         await refresh();
+      } catch (e: unknown) {
+        setAccount(null);
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  const signup = async (email: string, password: string) => {
-    const { data } = await authApi.signup(email, password, sessionId);
+  const signup = async (email: string, password: string, firstName?: string, lastName?: string) => {
+    const { data } = await authApi.signup(email, password, firstName, lastName, sessionId);
     setAccount(data.account);
   };
 

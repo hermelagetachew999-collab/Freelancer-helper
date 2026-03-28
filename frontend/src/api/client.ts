@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:3001/api');
 
 const api = axios.create({ baseURL: API_BASE, withCredentials: true });
 
@@ -83,13 +83,15 @@ export const guidesApi = {
 export interface Account {
   id: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
   created_at: string;
 }
 
 export const authApi = {
   me: () => api.get<{ account: Account | null }>('/auth/me'),
-  signup: (email: string, password: string, sessionId?: string) =>
-    api.post<{ account: Account }>('/auth/signup', { email, password, sessionId }),
+  signup: (email: string, password: string, firstName?: string, lastName?: string, sessionId?: string) =>
+    api.post<{ account: Account }>('/auth/signup', { email, password, firstName, lastName, sessionId }),
   login: (email: string, password: string, sessionId?: string) =>
     api.post<{ account: Account }>('/auth/login', { email, password, sessionId }),
   logout: () => api.post('/auth/logout'),

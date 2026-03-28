@@ -21,14 +21,22 @@ export function CoachPage() {
   const canSend = useMemo(() => !busy && draft.trim().length > 0, [busy, draft]);
 
   const loadConversations = useCallback(async () => {
-    const { data } = await chatApi.getConversations(sessionId);
-    setConversations(data);
-    setActiveConversationId((current) => (current ? current : data[0]?.id ?? null));
+    try {
+      const { data } = await chatApi.getConversations(sessionId);
+      setConversations(data);
+      setActiveConversationId((current) => (current ? current : data[0]?.id ?? null));
+    } catch (e: unknown) {
+      // Silently handle
+    }
   }, [sessionId]);
 
   const loadMessages = async (conversationId: string) => {
-    const { data } = await chatApi.getMessages(conversationId);
-    setMessages(data);
+    try {
+      const { data } = await chatApi.getMessages(conversationId);
+      setMessages(data);
+    } catch (e: unknown) {
+      // Silently handle
+    }
   };
 
   useEffect(() => {
@@ -46,9 +54,13 @@ export function CoachPage() {
   };
 
   const deleteChat = async (id: string) => {
-    await chatApi.deleteConversation(id);
-    if (activeConversationId === id) newChat();
-    await loadConversations();
+    try {
+      await chatApi.deleteConversation(id);
+      if (activeConversationId === id) newChat();
+      await loadConversations();
+    } catch (e: unknown) {
+      // Silently handle
+    }
   };
 
   const send = async (text: string) => {

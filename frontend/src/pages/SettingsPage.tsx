@@ -2,10 +2,8 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { paths } from '../routes/paths';
-import { useSessionId } from '../hooks/useSession';
 
 export function SettingsPage() {
-  const sessionId = useSessionId();
   const { account, loading, logout } = useAuth();
 
   return (
@@ -13,7 +11,7 @@ export function SettingsPage() {
       <section className="card card-glow" style={{ padding: 22 }}>
         <h1 className="display-md">Settings</h1>
         <p style={{ marginTop: 8, color: 'var(--text-secondary)' }}>
-          Your guest session ID is <code>{sessionId}</code>.
+          Manage your account preferences.
         </p>
 
         <div className="divider" />

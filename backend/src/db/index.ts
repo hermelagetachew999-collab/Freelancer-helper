@@ -23,6 +23,9 @@ export async function runMigrations(): Promise<void> {
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
 
+      ALTER TABLE accounts ADD COLUMN IF NOT EXISTS first_name TEXT;
+      ALTER TABLE accounts ADD COLUMN IF NOT EXISTS last_name TEXT;
+
       CREATE TABLE IF NOT EXISTS account_sessions (
         session_id TEXT PRIMARY KEY,
         account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,

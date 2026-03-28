@@ -9,6 +9,8 @@ const router = Router();
 const SignupSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8).max(200),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
   sessionId: z.string().min(5).optional(),
 });
 
@@ -51,13 +53,13 @@ router.post('/signup', async (req: Request, res: Response) => {
   const parsed = SignupSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid input' });
 
-  const { email, password, sessionId } = parsed.data;
+  const { email, password, firstName, lastName, sessionId } = parsed.data;
   const passwordHash = await bcrypt.hash(password, 12);
 
   try {
     const result = await pool.query(
-      `INSERT INTO accounts (email, password_hash) VALUES ($1, $2) RETURNING id, email, created_at`,
-      [email.toLowerCase(), passwordHash]
+      `INSERT INTO accounts (email, password_hash, first_name, last_name) VALUES ($1, $2, $3, $4) RETURNING id, email, first_name as "firstName", last_name as "lastName", created_at`,
+      [email.toLowerCase(), passwordHash, firstName || null, lastName || null]
     );
     const account = result.rows[0];
     const token = issueToken(account.id);
@@ -79,7 +81,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
   const { email, password, sessionId } = parsed.data;
   try {
-    const result = await pool.query(`SELECT id, email, password_hash, created_at FROM accounts WHERE email = $1`, [
+    const result = await pool.query(`SELECT id, email, password_hash, first_name as "firstName", last_name as "lastName", created_at FROM accounts WHERE email = $1`, [
       email.toLowerCase(),
     ]);
     const account = result.rows[0];
@@ -92,7 +94,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
     if (sessionId) await linkSessionToAccount(sessionId, account.id);
 
-    return res.json({ account: { id: account.id, email: account.email, created_at: account.created_at } });
+    return res.json({ account: { id: account.id, email: account.email, firstName: account.firstName, lastName: account.lastName, created_at: account.created_at } });
   } catch (e) {
     console.error('Login error:', e);
     return res.status(500).json({ error: 'Failed to log in' });
@@ -109,7 +111,7 @@ router.get('/me', async (req: Request, res: Response) => {
   if (!token) return res.json({ account: null });
   try {
     const payload = jwt.verify(token, getJwtSecret()) as { sub: string };
-    const result = await pool.query(`SELECT id, email, created_at FROM accounts WHERE id = $1`, [payload.sub]);
+    const result = await pool.query(`SELECT id, email, first_name as "firstName", last_name as "lastName", created_at FROM accounts WHERE id = $1`, [payload.sub]);
     return res.json({ account: result.rows[0] || null });
   } catch {
     return res.json({ account: null });
