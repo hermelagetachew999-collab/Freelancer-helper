@@ -4,16 +4,6 @@ import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
-
 export async function sendVerificationCode(email: string, code: string) {
   const isMock = !process.env.SMTP_USER || process.env.SMTP_USER.includes('your_email');
 
@@ -22,7 +12,22 @@ export async function sendVerificationCode(email: string, code: string) {
     return true;
   }
 
+  // Create transporter inside the function for serverless stability
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: process.env.SMTP_PORT === '465',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    // Add a short timeout for serverless
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+  });
+
   const mailOptions = {
+// ... existing options ...
     from: process.env.EMAIL_FROM || '"Freelancer-Helper" <noreply@freelancer-helper.com>',
     to: email,
     subject: 'Your Password Reset Verification Code',
