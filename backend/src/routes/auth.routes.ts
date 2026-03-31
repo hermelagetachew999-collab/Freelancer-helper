@@ -31,10 +31,11 @@ function issueToken(accountId: string) {
 }
 
 function setAuthCookie(res: Response, token: string) {
+  const isProd = process.env.NODE_ENV === 'production';
   res.cookie('fc_auth', token, {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    sameSite: isProd ? 'none' : 'lax',
+    secure: isProd,
     maxAge: 30 * 24 * 60 * 60 * 1000,
     path: '/',
   });
