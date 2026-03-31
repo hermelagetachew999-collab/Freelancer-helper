@@ -139,9 +139,19 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
       [email.toLowerCase(), code, expiresAt]
     );
 
-    console.log(`\n--- VERIFICATION CODE FOR ${email} ---\nCODE: ${code}\n-----------------------------------\n`);
+    console.log(`🔑 Generated code ${code} for ${email}. Sending...`);
 
-    return res.json({ success: true, message: 'Verification code sent to your email (check server console).' });
+    // Send the actual email
+    const { sendVerificationCode } = require('../services/email.service');
+    const sent = await sendVerificationCode(email.toLowerCase(), code);
+
+    if (!sent) {
+      console.error(`❌ Failed to dispatch email to ${email}`);
+      return res.status(500).json({ error: 'Failed to send verification email' });
+    }
+
+    console.log(`✅ Verification email successfully handed off to SMTP for ${email}`);
+    return res.json({ success: true, message: 'Verification code sent to your email.' });
   } catch (e) {
     console.error('Forgot password error:', e);
     return res.status(500).json({ error: 'Failed to process request' });
