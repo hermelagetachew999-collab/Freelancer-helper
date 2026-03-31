@@ -13,7 +13,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   return (
     <div className={`bubble-row ${isUser ? 'bubble-row--user' : 'bubble-row--ai'}`}>
       {!isUser && (
-        <div className="bubble-avatar" aria-label="ProposalWin AI">
+        <div className="bubble-avatar" aria-label="Freelancer-Helper AI">
           <span>✦</span>
         </div>
       )}

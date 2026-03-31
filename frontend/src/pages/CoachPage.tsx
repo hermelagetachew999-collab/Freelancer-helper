@@ -121,7 +121,7 @@ export function CoachPage() {
 
   const handleOnboarding = async (answers: { platform: string; skill: string; struggle: string }) => {
     markOnboarded();
-    const opener = `Platform: ${answers.platform}\nSkill: ${answers.skill}\nBiggest struggle: ${answers.struggle}\n\nHi ProposalWin AI — please help me.`;
+    const opener = `Platform: ${answers.platform}\nSkill: ${answers.skill}\nBiggest struggle: ${answers.struggle}\n\nHi Freelancer-Helper AI — please help me.`;
     await send(opener);
   };
 
@@ -133,7 +133,7 @@ export function CoachPage() {
         <section className="card card-glow" style={{ padding: 0, flex: 1, display: 'flex', flexDirection: 'column', minHeight: '500px', maxHeight: '75vh' }}>
           <div style={{ padding: 14, borderBottom: '1px solid var(--border)' }} className="flex justify-between items-center gap-3">
             <div>
-              <div style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>ProposalWin AI Coach</div>
+              <div style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>Freelancer-Helper AI Coach</div>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
                 Paste a job post or proposal draft — I’ll score it and improve it.
               </div>

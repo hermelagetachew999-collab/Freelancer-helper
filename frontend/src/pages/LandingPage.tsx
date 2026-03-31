@@ -37,7 +37,7 @@ export function LandingPage() {
           </p>
         </div>
         <div className="card" style={{ padding: 18, flex: '1 1 280px' }}>
-          <h2 className="display-md">ProposalWin AI Coach</h2>
+          <h2 className="display-md">Freelancer-Helper AI Coach</h2>
           <p style={{ color: 'var(--text-secondary)', marginTop: 8 }}>
             Paste a job post or draft proposal. Get a score, fixes, and ready-to-send templates.
           </p>
