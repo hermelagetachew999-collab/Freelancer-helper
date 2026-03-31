@@ -1,44 +1,14 @@
-import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { NavLink, Outlet } from 'react-router-dom';
 import { paths } from '../routes/paths';
-import { authApi, Account } from '../api/client';
 
 import './AppShell.css';
 
 export function AppShell() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState<Account | null>(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   const toggle = () => setIsMenuOpen(!isMenuOpen);
   const close = () => setIsMenuOpen(false);
-
-  const checkAuth = async () => {
-    try {
-      const { data } = await authApi.me();
-      setUser(data.account);
-    } catch (e) {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void checkAuth();
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-      setUser(null);
-      close();
-      navigate(paths.home);
-    } catch (e) {
-      console.error('Logout failed:', e);
-    }
-  };
 
   return (
     <div className="app-shell">
@@ -84,29 +54,9 @@ export function AppShell() {
             </nav>
 
             <div className="app-header-actions">
-              {!loading && (
-                <>
-                  {user ? (
-                    <>
-                      <NavLink to={paths.settings} className="btn btn-ghost btn-sm" onClick={close}>
-                        {user.firstName || 'Settings'}
-                      </NavLink>
-                      <button onClick={handleLogout} className="btn btn-ghost btn-danger btn-sm">
-                        Logout
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <NavLink to={paths.login} className="btn btn-ghost btn-sm" onClick={close}>
-                        Login
-                      </NavLink>
-                      <NavLink to={paths.signup} className="btn btn-primary btn-sm" onClick={close}>
-                        Sign Up
-                      </NavLink>
-                    </>
-                  )}
-                </>
-              )}
+              <NavLink to={paths.settings} className="btn btn-ghost btn-sm" onClick={close}>
+                Settings
+              </NavLink>
             </div>
           </div>
         </div>
