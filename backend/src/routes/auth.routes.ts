@@ -125,8 +125,11 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
   if (!email) return res.status(400).json({ error: 'Email is required' });
 
   try {
+    console.log(`🔍 Received forgot-password request for: ${email}`);
     const user = await pool.query('SELECT id FROM accounts WHERE email = $1', [email.toLowerCase()]);
+    
     if (user.rowCount === 0) {
+      console.log(`⚠️ Forgot-password: User NOT found in database for email: ${email}`);
       // Security: don't reveal if user exists, but for this app's context we can be helpful OR silent.
       // Let's be silent but return success to avoid enumeration.
       return res.json({ success: true, message: 'If an account exists, a code was sent.' });
