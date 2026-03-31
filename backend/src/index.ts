@@ -1,6 +1,9 @@
+import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { runMigrations } from './db/index';
@@ -9,8 +12,6 @@ import scamRouter from './routes/scam.routes';
 import authRouter from './routes/auth.routes';
 import guidesRouter from './routes/guides.routes';
 import adminRouter from './routes/admin.routes';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -66,6 +67,12 @@ app.use('/api/chat', chatRouter);
 app.use('/api/scam', scamRouter);
 app.use('/api/guides', guidesRouter);
 app.use('/api/admin', adminRouter);
+
+// 404 handler
+app.use((req, res) => {
+  console.warn(`🔍 404 Not Found: ${req.method} ${req.url}`);
+  res.status(404).json({ error: `Path ${req.url} not found` });
+});
 
 // Global error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

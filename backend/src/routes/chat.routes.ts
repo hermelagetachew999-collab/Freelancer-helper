@@ -35,6 +35,8 @@ router.post('/', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'sessionId and message are required' });
   }
 
+  console.log(`💬 Chat Request: [Session: ${sessionId}] [Message: ${message.substring(0, 50)}...]`);
+
   // Handle DB connection and logic
   try {
     const isDbConnected = await pool.query('SELECT 1').then(() => true).catch(() => false);
@@ -77,7 +79,9 @@ router.post('/', async (req: Request, res: Response) => {
         parts: [{ text: row.content }],
       }));
 
+      console.log(`🤖 Requesting AI response for session ${sessionId}...`);
       const aiResponse = await getAIResponse(history, message);
+      console.log(`✅ AI Response received (${aiResponse.length} chars)`);
 
       await client.query(
         `INSERT INTO messages (conversation_id, role, content) VALUES ($1, 'user', $2), ($1, 'assistant', $3)`,
@@ -91,15 +95,12 @@ router.post('/', async (req: Request, res: Response) => {
     } finally {
       client.release();
     }
-  } catch (error) {
-    console.error('Chat error (falling back to stateless):', error);
-    // Ultimate fallback: if anything DB-related fails, just try to get the AI response anyway
-    try {
-      const aiResponse = await getAIResponse([], message);
-      return res.json({ conversationId: 'fallback-conv', response: aiResponse });
-    } catch (aiError) {
-      return res.status(500).json({ error: 'System is currently unavailable. Please check your API key.' });
-    }
+  } catch (error: any) {
+    console.error('Chat error:', error);
+    return res.status(500).json({ 
+      error: error.message || 'System error. Please try again later.',
+      response: 'I encountered an unexpected error. Please check the logs.'
+    });
   }
 });
 

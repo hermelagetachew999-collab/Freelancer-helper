@@ -1,196 +1,181 @@
 import { GoogleGenerativeAI, Content } from '@google/generative-ai';
 import dotenv from 'dotenv';
+import path from 'path';
 import { z } from 'zod';
+import Bottleneck from 'bottleneck';
 import { pool } from '../db/index';
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-function requireGeminiKey() {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key || key === 'your_gemini_api_key_here') return null;
-  return key;
+// --- RATE LIMITER CONFIG ---
+// Free tier allows ~15 RPM for 2.0-Flash-Lite. 
+// We use 1 concurrent request and 4s spacing to be extremely safe.
+const limiter = new Bottleneck({
+  maxConcurrent: 1,
+  minTime: 4000, 
+});
+
+console.log('🤖 AI Service: Gemini Key Present:', !!process.env.GEMINI_API_KEY);
+
+const DEFAULT_MODEL = 'gemini-2.0-flash-lite';
+
+export const SYSTEM_PROMPT = `You are "ProposalWin AI" — a professional coach for Proposal & Client-Winning Mastery on freelance platforms, specialized in the Ethiopian market. Your mission is to help freelancers (from beginners to advanced) win more jobs by providing actionable coaching, analyzing their proposals, and offering localized strategies for payment settlement (P2P on Binance/Bybit/MEXC) and market-aware ETB conversion.
+
+CORE CAPABILITIES:
+- Proposal Rewriting & Optimization.
+- Platform-specific strategy (Upwork, Freelancer, Fiverr).
+- Pricing & Financial Guidance (Fixed vs Hourly, P2P ETB/USD).
+- Market Analysis & Skill-gap identification.
+
+TONE:
+Professional, encouraging, authoritative yet accessible, and deeply practical.
+
+LOCALIZED CONTEXT (ETHIOPIA):
+- Support users in navigating USD to ETB conversion via P2P (Market rate: ~188 ETB).
+- Warn against scams targeting Ethiopian freelancers (e.g., direct bank transfers from unknown clients).
+- Promote P2P settlement on reputable exchanges over deprecated methods.
+
+Always prioritize practical "wins" for the freelancer. Keep responses concise unless a deep analysis is requested.`;
+
+// Helper to get a model with the latest API key
+function getModel(options?: { model?: string; systemInstruction?: string }) {
+  const key = process.env.GEMINI_API_KEY || 'no_key_provided';
+  const api = new GoogleGenerativeAI(key);
+  // Using gemini-2.0-flash-lite as fallback for stability
+  return api.getGenerativeModel({
+    model: options?.model || DEFAULT_MODEL,
+    systemInstruction: options?.systemInstruction,
+  });
 }
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'no_key_provided');
-
-export const SYSTEM_PROMPT = `You are "ProposalWin AI" — a professional coach for Proposal & Client-Winning Mastery on freelance platforms, specialized in the Ethiopian market.
-
-You are designed to assist ETHIOPIAN FREELANCERS in navigating the technical and financial complexities of the global gig economy — including international payment settlement, platform compliance, and market-rate optimization.
-
-Your purpose is to provide research-backed, actionable advice to help freelancers succeed on platforms like Upwork, Fiverr, and PeoplePerHour.
-
-Core rules:
-1. Provide professional, clear, and actionable feedback. Use structured formatting and clear next steps.
-2. Maintain technical accuracy regarding international financial rails (e.g., Payoneer, Wise, and alternative settlement methods).
-3. Factor in regional constraints: PayPal receiving limitations, ID verification standards for Ethiopia (Passport or National ID), and forex market spreads.
-4. Every response must include a clear, professional action the user can take.
-
-Regional Technical Knowledge:
-- For international settlement in Ethiopia, advocate for P2P trading via Bybit, Binance, or MEXC.
-- For Upwork ID verification: Passport or National ID are acceptable; ensure professional lighting and clear documentation.
-- Market Analysis: Note that exchange rates fluctuate (e.g., official vs. market-based spreads like 1 USD ≈ 155–185+ ETB). Always advise users to perform their own fiscal due diligence.
-- Security: Identify red flags such as "off-platform payment requests" or "registration fee" scams.
-
-Tone: Professional, expert, and encouraging. Focus on "technical excellence" and "market readiness."`;
-
+/**
+ * Core AI Response function with Retry Logic and Rate Limiting
+ */
 export async function getAIResponse(
   history: Content[],
-  userMessage: string
+  userMessage: string,
+  retries = 3
 ): Promise<string> {
-  const key = process.env.GEMINI_API_KEY;
-  const isMock = !key || key === 'your_gemini_api_key_here';
+  // Wrap the call in the bottleneck limiter
+  return limiter.schedule(async () => {
+    let attempt = 0;
+    
+    while (attempt <= retries) {
+      try {
+        const key = process.env.GEMINI_API_KEY;
+        if (!key || key === 'your_gemini_api_key_here') {
+          console.warn('⚠️ Gemini Key is missing, using mock response.');
+          return `Your proposal looks promising! As a professional coach, I've analyzed your input. (Note: This is a simulated response because a live Gemini API key is missing).`;
+        }
 
-  if (isMock) {
-    return `[SIMULATED RESPONSE]
-Your proposal looks promising! As a professional coach, I've analyzed your input. 
+        const model = getModel({ systemInstruction: SYSTEM_PROMPT });
+        const chat = model.startChat({ history });
 
-**Feedback:**
-- **Clarity**: High. You clearly stated your value proposition.
-- **Market Alignment**: Good. You've addressed the regional settlement needs appropriately.
+        console.log(`📡 [Attempt ${attempt + 1}/${retries + 1}] Sending message to Gemini API (${DEFAULT_MODEL})...`);
+        const result = await chat.sendMessage(userMessage);
+        const responseText = result.response.text();
+        console.log(`📥 Gemini response successfully generated.`);
+        return responseText;
 
-**Suggested Improvement:**
-Try to be more specific about your past performance with international clients. Mentioning your verified Upwork profile can build trust.
+      } catch (error: any) {
+        attempt++;
+        const isRateLimit = error.status === 429 || error.message?.includes('429');
+        
+        if (isRateLimit && attempt <= retries) {
+          // Parse retry delay from errorDetails if available
+          let waitMs = 30000; // Default 30s
+          
+          if (error.errorDetails) {
+            const retryInfo = error.errorDetails.find((d: any) => d['@type']?.includes('RetryInfo'));
+            if (retryInfo?.retryDelay) {
+              // Convert "40s" or "40.5s" to ms
+              waitMs = parseFloat(retryInfo.retryDelay) * 1000 || 30000;
+            }
+          }
 
-*Note: This is a simulated response because a live Gemini API key is not configured in the backend/.env file.*`;
-  }
+          console.warn(`⚠️ Gemini Rate Limit Hit (429). Retrying in ${waitMs / 1000}s... (Attempt ${attempt}/${retries})`);
+          await new Promise(resolve => setTimeout(resolve, waitMs));
+          continue;
+        }
 
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
-    systemInstruction: SYSTEM_PROMPT,
-  });
+        // Handle specific API errors
+        if (error.message?.includes('API_KEY_INVALID') || error.message?.includes('key not valid')) {
+          console.error('❌ AI Error: Invalid API Key');
+          return `[API KEY ERROR] Your Gemini API key is invalid. Please check your backend/.env file.`;
+        }
 
-  try {
-    const chat = model.startChat({ history });
-    const result = await chat.sendMessage(userMessage);
-    return result.response.text();
-  } catch (error: any) {
-    if (error.message?.includes('API_KEY_INVALID') || error.message?.includes('key not valid')) {
-      return `[API KEY ERROR]
-It looks like your Gemini API key is invalid. To fix this, update the \`GEMINI_API_KEY\` in your \`backend/.env\` file with a valid key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+        // Final failure
+        if (attempt > retries) {
+          console.error('❌ AI Service failed after max retries:', error.message || error);
+          return `[SYSTEM BUSY] The AI is currently receiving too many requests. Please try again in about a minute.`;
+        }
 
-In the meantime, I can provide simulated advice! (See above for the error).`;
+        // For other unexpected errors, re-throw to be caught by route handler
+        throw error;
+      }
     }
-    throw error;
-  }
+    return "[ERROR] System reached an unreachable state in AI service.";
+  });
 }
 
-export async function analyzeScamRisk(text: string): Promise<{
-  riskLevel: 'low' | 'medium' | 'high';
-  redFlags: string[];
-  explanation: string;
-  recommendation: string;
-}> {
-  const key = requireGeminiKey();
-  const isMock = !key;
-
-  if (isMock) {
-    return {
-      riskLevel: 'medium',
-      redFlags: ['[MOCK] No valid API Key found'],
-      explanation: 'This is a simulated analysis because a live Gemini API key is not configured. In a real scenario, I would analyze the text against known patterns.',
-      recommendation: 'Configure your GEMINI_API_KEY in the backend/.env file to enable real-time detection.',
-    };
-  }
-
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
-  let patterns = '- (none yet available)';
-  try {
-    const isDbConnected = await pool.query('SELECT 1').then(() => true).catch(() => false);
-    if (isDbConnected) {
-      const patternsResult = await pool.query(
-        `SELECT pattern_type, pattern_text FROM scam_patterns ORDER BY created_at DESC LIMIT 50`
-      );
-      patterns = patternsResult.rows
-        .map((r: any) => `- (${r.pattern_type}) ${r.pattern_text}`)
-        .join('\n');
+/**
+ * Scam analysis logic (using the same pattern)
+ */
+export async function analyzeScamRisk(text: string): Promise<any> {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key || key === 'your_gemini_api_key_here') {
+      return {
+        riskLevel: 'medium',
+        redFlags: ['[MOCK] No valid API Key found'],
+        explanation: 'Configure your GEMINI_API_KEY in the backend/.env file to enable real-time detection.',
+        recommendation: 'Use manual judgment for now.',
+      };
     }
-  } catch (dbError) {
-    console.warn('Scam Analysis: Database unavailable, skipping pattern fetch.');
-  }
 
-  const prompt = `You are a scam detection expert for freelancers, with special knowledge of scams targeting Ethiopian freelancers.
+    return limiter.schedule(async () => {
+      try {
+        let patterns = '- (none yet available)';
+        const isDbConnected = await pool.query('SELECT 1').then(() => true).catch(() => false);
+        if (isDbConnected) {
+          const patternsResult = await pool.query(
+            `SELECT pattern_type, pattern_text FROM scam_patterns ORDER BY created_at DESC LIMIT 50`
+          );
+          patterns = patternsResult.rows
+            .map((r: any) => `- (${r.pattern_type}) ${r.pattern_text}`)
+            .join('\n');
+        }
 
-Analyze this job post or client message for scam risk:
+        const prompt = `Analyze this job post or client message for scam risk:
 """
 ${text}
 """
 
-Known scam patterns to consider (from our database):
-${patterns || '- (none yet)'}
+Known scam patterns:
+${patterns}
 
-Respond ONLY with a valid JSON object (no markdown, no code blocks) in this exact format:
+Return JSON with format:
 {
-  "riskLevel": "low" or "medium" or "high",
-  "redFlags": ["flag 1", "flag 2"],
-  "explanation": "plain English explanation of what you found",
-  "recommendation": "what the freelancer should do next"
-}
+  "riskLevel": "low|medium|high",
+  "redFlags": ["flag1", ...],
+  "explanation": "why",
+  "recommendation": "do what"
+}`;
 
-Common red flags to check:
-- Requests to communicate or pay outside the platform
-- Unrealistic pay rates (too high or too low)
-- Urgency/pressure tactics  
-- Requests for personal info (bank details) before contract
-- "Pay registration fee" or "buy a kit" requests
-- Western Union / MoneyGram payment requests
-- P2P payment without platform escrow release
-- Sending crypto to "support" for verification
-- Vague job descriptions with no clear deliverables
-- Grammar/spelling that suggests automated scam messages
-- Requests to send money first`;
-
-  try {
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text().trim();
-
-    const ScamSchema = z.object({
-      riskLevel: z.enum(['low', 'medium', 'high']),
-      redFlags: z.array(z.string()).default([]),
-      explanation: z.string(),
-      recommendation: z.string(),
+        const model = getModel();
+        console.log(`📡 Analyzing scam risk...`);
+        const result = await model.generateContent(prompt);
+        const content = result.response.text();
+        
+        const cleanJson = content.replace(/```json|```/g, '').trim();
+        return JSON.parse(cleanJson);
+      } catch (error) {
+        console.error('Scam analysis failed:', error);
+        return {
+          riskLevel: 'medium',
+          redFlags: ['Error analyzing text'],
+          explanation: 'The AI service encountered an error during scam analysis.',
+          recommendation: 'Use caution and manual judgment.'
+        };
+      }
     });
-
-    const tryParse = (raw: string) => {
-      const cleaned = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
-      const parsed = ScamSchema.safeParse(JSON.parse(cleaned));
-      return parsed.success ? parsed.data : null;
-    };
-
-    try {
-      const parsed = tryParse(responseText);
-      if (parsed) return parsed;
-    } catch {
-      // continue to repair
-    }
-
-    try {
-      const repairPrompt = `Fix this into valid JSON that matches the required schema exactly. Output ONLY JSON.\n\n${responseText}`;
-      const repair = await model.generateContent(repairPrompt);
-      const repairedText = repair.response.text().trim();
-      const repaired = tryParse(repairedText);
-      if (repaired) return repaired;
-    } catch {
-      // ignore
-    }
-  } catch (error: any) {
-    const isKeyError = error.message?.includes('API_KEY_INVALID') || error.message?.includes('key not valid') || !process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_api_key_here';
-    
-    if (isKeyError) {
-      return {
-        riskLevel: 'medium',
-        redFlags: ['Simulated analysis: No valid API Key'],
-        explanation: 'This is a placeholder analysis. To get real AI-powered detection, please configure a valid Gemini API key.',
-        recommendation: 'Check the backend/.env file and provide a valid key from Google AI Studio.',
-      };
-    }
-    throw error;
-  }
-
-  return {
-    riskLevel: 'medium',
-    redFlags: ['Unable to fully analyze — review manually'],
-    explanation: 'Analysis timed out or returned unexpected format.',
-    recommendation: 'Proceed with caution. Research the client before accepting.',
-  };
 }
