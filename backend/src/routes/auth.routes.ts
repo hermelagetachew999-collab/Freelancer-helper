@@ -143,7 +143,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
     console.log(`🔑 Generated code ${code} for ${email}. Sending...`);
 
     // Send the actual email
-    const { sendVerificationCode } = require('../services/email.service');
+    const { sendVerificationCode } = await import('../services/email.service');
     const sent = await sendVerificationCode(email.toLowerCase(), code);
 
     if (!sent) {
